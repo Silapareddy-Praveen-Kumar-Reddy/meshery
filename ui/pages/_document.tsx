@@ -75,12 +75,6 @@ class MesheryDocument extends Document<MyDocumentProps> {
             type="font/otf"
             crossOrigin="anonymous"
           />
-          <link
-            href="/static/fonts/qanelas-soft/QanelasSoftRegular.otf"
-            as="font"
-            type="font/otf"
-            crossOrigin="anonymous"
-          />
 
           {/* Google Tag Manager */}
           {/* eslint-disable-next-line @next/next/next-script-for-ga */}
@@ -158,3 +152,4 @@ class MesheryDocument extends Document<MyDocumentProps> {
 }
 
 export default MesheryDocument;
+
