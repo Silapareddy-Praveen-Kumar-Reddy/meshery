@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import React from 'react';
 import PropTypes from 'prop-types';
 import uiConfig from '../../ui.config';

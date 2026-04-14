@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import Document, {
   Html,
   Head,
@@ -105,6 +105,12 @@ class MesheryDocument extends Document<MyDocumentProps> {
            */}
           <style type="text/css">
             {`
+              @font-face {
+                font-family: 'Qanelas Soft';
+                src: url('/static/fonts/qanelas-soft/QanelasSoftRegular.otf') format('opentype');
+                font-weight: 400;
+                font-display: swap;
+              }
               .hide-scrollbar::-webkit-scrollbar {
                 width: 0 !important;
               }
@@ -152,4 +158,3 @@ class MesheryDocument extends Document<MyDocumentProps> {
 }
 
 export default MesheryDocument;
-
