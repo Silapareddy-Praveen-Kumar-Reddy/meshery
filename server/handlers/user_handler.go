@@ -161,10 +161,7 @@ func (h *Handler) ShareDesignHandler(w http.ResponseWriter, r *http.Request, _ *
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if _, err := fmt.Fprint(w, "Design shared"); err != nil {
-		h.log.Error(err)
-	}
+	writeJSONMessage(w, map[string]string{"message": "Design shared"}, http.StatusOK)
 }
 
 func (h *Handler) ShareFilterHandler(w http.ResponseWriter, r *http.Request, _ *models.Preference, _ *models.User, provider models.Provider) {
@@ -174,8 +171,5 @@ func (h *Handler) ShareFilterHandler(w http.ResponseWriter, r *http.Request, _ *
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if _, err := fmt.Fprint(w, "Filter shared"); err != nil {
-		h.log.Error(err)
-	}
+	writeJSONMessage(w, map[string]string{"message": "Filter shared"}, http.StatusOK)
 }
