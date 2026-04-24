@@ -59,16 +59,12 @@ func (h *Handler) PatternFileHandler(
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		h.log.Error(ErrRequestBody(err))
-		http.Error(rw, ErrRequestBody(err).Error(), http.StatusInternalServerError)
-
 		writeMeshkitError(rw, ErrRequestBody(err), http.StatusBadRequest)
 		return
 	}
 
 	if err := json.Unmarshal(body, &payload); err != nil {
 		h.log.Error(ErrRequestBody(err))
-		http.Error(rw, ErrRequestBody(err).Error(), http.StatusInternalServerError)
-
 		writeMeshkitError(rw, ErrDecoding(err, "design engine request"), http.StatusBadRequest)
 		return
 	}
