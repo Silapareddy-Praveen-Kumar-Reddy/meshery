@@ -105,7 +105,7 @@ func (h *Handler) RegisterMeshmodelRelationships(rw http.ResponseWriter, r *http
 	var cc registry.MeshModelRegistrantData
 	err := dec.Decode(&cc)
 	if err != nil {
-		http.Error(rw, err.Error(), http.StatusBadRequest)
+		writeMeshkitError(rw, ErrRequestBody(err), http.StatusBadRequest)
 		return
 	}
 	switch cc.EntityType {
@@ -115,7 +115,7 @@ func (h *Handler) RegisterMeshmodelRelationships(rw http.ResponseWriter, r *http
 		var r relationship.RelationshipDefinition
 		err = json.Unmarshal(cc.Entity, &r)
 		if err != nil {
-			http.Error(rw, err.Error(), http.StatusBadRequest)
+			writeMeshkitError(rw, ErrRequestBody(err), http.StatusBadRequest)
 			return
 		}
 		isRegistranError, isModelError, err = h.registryManager.RegisterEntity(cc.Connection, &r)
@@ -124,9 +124,8 @@ func (h *Handler) RegisterMeshmodelRelationships(rw http.ResponseWriter, r *http
 	err = helpers.WriteLogsToFiles()
 	if err != nil {
 		h.log.Error(err)
-	}
-	if err != nil {
-		http.Error(rw, err.Error(), http.StatusBadRequest)
+		// WriteLogsToFiles is an internal operation — return 500, not 400.
+		writeMeshkitError(rw, err, http.StatusInternalServerError)
 		return
 	}
 	go h.config.MeshModelSummaryChannel.Publish()
