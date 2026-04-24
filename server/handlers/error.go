@@ -177,6 +177,8 @@ const (
 	ErrDeleteUserCredentialCode            = "meshery-server-1392"
 	ErrEncodeUserCredentialCode            = "meshery-server-1393"
 	ErrUnknownConnectionKindCode           = "meshery-server-1394"
+	ErrGetK8sContextsCode                  = "meshery-server-1395"
+	ErrEncodeK8sContextsCode               = "meshery-server-1396"
 )
 
 var (
@@ -748,4 +750,12 @@ func ErrEncodeUserCredential(err error) error {
 
 func ErrUnknownConnectionKind(kind string) error {
 	return errors.New(ErrUnknownConnectionKindCode, errors.Alert, []string{"Unable to register resource as connection"}, []string{fmt.Sprintf("No matching connection definition found in the registry for kind: %s", kind)}, []string{"The specified connection kind is not registered with Meshery"}, []string{"Verify the connection kind is spelled correctly and that its definition is installed"})
+}
+
+func ErrGetK8sContexts(err error) error {
+	return errors.New(ErrGetK8sContextsCode, errors.Alert, []string{"Failed to get Kubernetes contexts"}, []string{err.Error()}, []string{"The remote provider may be unreachable or the stored context data is corrupted"}, []string{"Verify the remote provider is reachable and retry; if the issue persists, check server logs"})
+}
+
+func ErrEncodeK8sContexts(err error) error {
+	return errors.New(ErrEncodeK8sContextsCode, errors.Alert, []string{"Failed to encode Kubernetes context response"}, []string{err.Error()}, []string{"Response data could not be serialized to JSON"}, []string{"Check server logs for serialization details"})
 }
