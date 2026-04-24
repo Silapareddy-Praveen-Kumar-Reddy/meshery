@@ -187,6 +187,8 @@ const (
 	ErrAccessDatabaseTablesCode            = "meshery-server-1402"
 	ErrDropDatabaseTableCode               = "meshery-server-1403"
 	ErrMigrateDatabaseTablesCode           = "meshery-server-1404"
+	ErrFetchResultsCode                    = "meshery-server-1405"
+	ErrMissingResultIDCode                 = "meshery-server-1406"
 )
 
 var (
@@ -798,4 +800,12 @@ func ErrDropDatabaseTable(err error) error {
 
 func ErrMigrateDatabaseTables(err error) error {
 	return errors.New(ErrMigrateDatabaseTablesCode, errors.Alert, []string{"Can not migrate tables to database"}, []string{err.Error()}, []string{"Auto-migrate or registry manager setup failed during database reset"}, []string{"Check server logs for migration details and verify the database is accessible"})
+}
+
+func ErrFetchResults(err error) error {
+	return errors.New(ErrFetchResultsCode, errors.Alert, []string{"Error while getting load test results"}, []string{err.Error()}, []string{"The remote provider is unreachable, the profile id is invalid, or the results store is unavailable"}, []string{"Verify connectivity to the remote provider and retry; confirm the profile id is correct"})
+}
+
+func ErrMissingResultID() error {
+	return errors.New(ErrMissingResultIDCode, errors.Alert, []string{"Missing result id in request"}, []string{"No result id was supplied in the URL path"}, []string{"The client did not include a result identifier"}, []string{"Provide the result id in the request URL, for example /api/user/performance/results/{id}"})
 }
