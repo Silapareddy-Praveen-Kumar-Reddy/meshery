@@ -1788,11 +1788,6 @@ func (h *Handler) handlePatternUpdate(
 		errAppSave := ErrSaveApplication(err)
 		h.log.Error(errAppSave)
 
-		rw.WriteHeader(http.StatusBadRequest)
-		if _, writeErr := fmt.Fprintf(rw, "%s", err); writeErr != nil {
-			h.log.Error(writeErr)
-		}
-
 		event := eventBuilder.WithSeverity(events.Error).WithMetadata(map[string]interface{}{
 			"error": errAppSave,
 		}).WithDescription(fmt.Sprintf("Error saving design %s", parsedBody.PatternData.Name)).Build()
@@ -1800,6 +1795,7 @@ func (h *Handler) handlePatternUpdate(
 		_ = provider.PersistEvent(*event, token)
 		go h.config.EventBroadcaster.Publish(userID, event)
 
+		writeMeshkitError(rw, errAppSave, http.StatusInternalServerError)
 		return
 	}
 	go h.config.PatternChannel.Publish(userID, struct{}{})
