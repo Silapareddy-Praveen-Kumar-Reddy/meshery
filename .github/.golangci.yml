@@ -22,6 +22,8 @@ linters:
         linters: [forbidigo]
       - path: 'server/handlers/events_streamer\.go'
         linters: [forbidigo]
+        # TODO: narrow to the SSE section only once Phase 6 Task 42 migrates
+        # the non-SSE event endpoints (GetEvents, UpdateEventStatus, etc.).
       - path: 'server/handlers/load_test_handler\.go'
         linters: [forbidigo]
         # TODO: narrow to SSE section only once Phase 6 migrates the non-SSE paths.
@@ -29,6 +31,3 @@ linters:
       # asset resolution, not API surface — keep off the hook.
       - path: 'server/handlers/ui_handler\.go'
         linters: [forbidigo]
-
-issues:
-  new: false  # report all pre-existing violations (advisory during migration)

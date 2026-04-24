@@ -41,6 +41,7 @@ jobs:
           # Fetch full history so --new-from-rev=origin/master has the base
           # commit available for the forbidigo advisory diff (see Phase 2
           # of docs/content/en/project/contributing/error-contract.md).
+          # Can be reverted to default (shallow) after Phase 9 lint-blocking flip.
           fetch-depth: 0
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
