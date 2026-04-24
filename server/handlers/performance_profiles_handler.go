@@ -28,12 +28,9 @@ func (h *Handler) SavePerformanceProfileHandler(
 	parsedBody.Metadata = make(sql.Map, 0)
 	err := json.NewDecoder(r.Body).Decode(&parsedBody)
 	if err != nil {
-		rw.WriteHeader(http.StatusBadRequest)
 		//failed to read request body
 		h.log.Error(ErrRequestBody(err))
-		if _, writeErr := fmt.Fprintf(rw, ErrRequestBody(err).Error(), err); writeErr != nil {
-			h.log.Error(writeErr)
-		}
+		writeMeshkitError(rw, ErrRequestBody(err), http.StatusBadRequest)
 		return
 	}
 
