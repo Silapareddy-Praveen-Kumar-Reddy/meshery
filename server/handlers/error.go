@@ -201,6 +201,7 @@ const (
 	ErrEmptyConnectionIDCode               = "meshery-server-1416"
 	ErrPolicyEvalTimeoutCode               = "meshery-server-1417"
 	ErrPolicyEvalCode                      = "meshery-server-1418"
+	ErrInvalidBase64DataCode               = "meshery-server-1419"
 )
 
 var (
@@ -901,4 +902,11 @@ func ErrPolicyEvalTimeout(timeout fmt.Stringer) error {
 // relationship evaluator (OPA/Rego or the Go engine). Emitted with HTTP 500.
 func ErrPolicyEval(err error) error {
 	return errors.New(ErrPolicyEvalCode, errors.Alert, []string{"Relationship policy evaluation failed"}, []string{err.Error()}, []string{"A registered relationship policy returned an error during evaluation.", "A cycle or invalid declaration in the design triggered an engine panic recovered as an error."}, []string{"Inspect server logs for the underlying policy error. If the design has recently been edited, revert the most recent change and retry."})
+}
+
+// ErrInvalidBase64Data wraps a base64 decoding failure on a request payload
+// (e.g. a model file uploaded as a base64-encoded blob in the import body).
+// Emitted with HTTP 400 because the client supplied malformed input.
+func ErrInvalidBase64Data(err error) error {
+	return errors.New(ErrInvalidBase64DataCode, errors.Alert, []string{"Invalid base64 data"}, []string{err.Error()}, []string{"The supplied payload was not a valid base64-encoded string.", "The payload may have been corrupted in transit or encoded with the wrong alphabet (URL-safe vs. standard)."}, []string{"Verify the client is base64-encoding the file with the standard alphabet before sending it.", "If the payload was hand-edited, re-encode it from the source bytes and retry."})
 }

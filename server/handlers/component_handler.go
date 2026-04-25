@@ -1169,7 +1169,7 @@ func (h *Handler) RegisterMeshmodels(rw http.ResponseWriter, r *http.Request, _ 
 		decodedBytes, err := base64.StdEncoding.DecodeString(base64String)
 		if err != nil {
 			h.log.Error(fmt.Errorf("invalid base64 data: %w", err))
-			writeJSONError(rw, "Invalid base64 data: "+err.Error(), http.StatusBadRequest)
+			writeMeshkitError(rw, ErrInvalidBase64Data(err), http.StatusBadRequest)
 			return
 		}
 		tempFile, err = CreateTemp(importRequest.ImportBody.FileName, decodedBytes)
