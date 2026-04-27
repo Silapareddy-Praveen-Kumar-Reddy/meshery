@@ -20,13 +20,6 @@ linters:
       # Legitimate plain-text responders — keep http.Error here if used.
       - path: 'server/handlers/k8s_healthz_handler\.go'
         linters: [forbidigo]
-      - path: 'server/handlers/events_streamer\.go'
-        linters: [forbidigo]
-        # TODO: narrow to the SSE section only once Phase 6 Task 42 migrates
-        # the non-SSE event endpoints (GetEvents, UpdateEventStatus, etc.).
-      - path: 'server/handlers/load_test_handler\.go'
-        linters: [forbidigo]
-        # TODO: narrow to SSE section only once Phase 6 migrates the non-SSE paths.
       # UI handler serves static HTML; any http.Error there relates to
       # asset resolution, not API surface — keep off the hook.
       - path: 'server/handlers/ui_handler\.go'

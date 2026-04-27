@@ -37,21 +37,11 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
       - uses: actions/checkout@v6
-        with:
-          # Fetch full history so --new-from-rev=origin/master has the base
-          # commit available for the forbidigo advisory diff (see Phase 2
-          # of docs/content/en/project/contributing/error-contract.md).
-          # Can be reverted to default (shallow) after Phase 9 lint-blocking flip.
-          fetch-depth: 0
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
           version: v2.7
-          # --new-from-rev=origin/master makes the forbidigo http.Error rule
-          # advisory during the plaintext->JSON migration: pre-existing
-          # violations are surfaced but do not fail CI; only newly-introduced
-          # http.Error usage in handlers/models blocks merge.
-          args: --config=../.github/.golangci.yml --timeout=10m --new-from-rev=origin/master
+          args: --config=../.github/.golangci.yml --timeout=10m
           working-directory: ./server
   unit-tests-server:
     name: server Unit tests
