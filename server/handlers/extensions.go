@@ -106,8 +106,14 @@ func (h *Handler) ExtensionsVersionHandler(w http.ResponseWriter, _ *http.Reques
 func (h *Handler) ExtensionsHandler(w http.ResponseWriter, req *http.Request, _ *models.Preference, _ *models.User, provider models.Provider) {
 	resp, err := provider.ExtensionProxy(req)
 	if err != nil {
-		h.log.Error(err)
-		writeMeshkitError(w, err, http.StatusInternalServerError)
+		// ExtensionProxy returns mostly raw stdlib errors plus the
+		// occasional ErrUnreachableRemoteProvider — wrap so the JSON
+		// envelope always carries MeshKit metadata regardless of which
+		// branch surfaced the failure. 502 because the failure is in
+		// the upstream remote provider, not this Meshery server.
+		wrappedErr := ErrExtensionProxy(err)
+		h.log.Error(wrappedErr)
+		writeMeshkitError(w, wrappedErr, http.StatusBadGateway)
 		return
 	}
 

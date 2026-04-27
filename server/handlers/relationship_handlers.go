@@ -123,9 +123,13 @@ func (h *Handler) RegisterMeshmodelRelationships(rw http.ResponseWriter, r *http
 	}
 	err = helpers.WriteLogsToFiles()
 	if err != nil {
-		h.log.Error(err)
-		// WriteLogsToFiles is an internal operation — return 500, not 400.
-		writeMeshkitError(rw, err, http.StatusInternalServerError)
+		// WriteLogsToFiles is an internal flush of registry-attempt
+		// state — surface a 500 with MeshKit metadata so the JSON
+		// envelope carries a code and remediation, not just the raw
+		// stdlib message.
+		wrappedErr := ErrWriteRegistryLogs(err)
+		h.log.Error(wrappedErr)
+		writeMeshkitError(rw, wrappedErr, http.StatusInternalServerError)
 		return
 	}
 	go h.config.MeshModelSummaryChannel.Publish()

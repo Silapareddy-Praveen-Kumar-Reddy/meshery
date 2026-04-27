@@ -64,22 +64,24 @@ func (h *Handler) ProcessConnectionRegistration(w http.ResponseWriter, req *http
 			nil,
 		)
 		if err != nil {
+			wrappedErr := ErrInitializeMachine(err)
 			event := eventBuilder.WithSeverity(events.Error).WithDescription(fmt.Sprintf("Unable to persist the \"%s\" connection details", connectionRegisterPayload.Kind)).WithMetadata(map[string]interface{}{
-				"error": err,
+				"error": wrappedErr,
 			}).Build()
 			if event != nil {
 				_ = provider.PersistEvent(*event, token)
 				go h.config.EventBroadcaster.Publish(userUUID, event)
 			}
-			h.log.Error(err)
-			writeMeshkitError(w, err, http.StatusInternalServerError)
+			h.log.Error(wrappedErr)
+			writeMeshkitError(w, wrappedErr, http.StatusInternalServerError)
 			return
 		}
 
 		event, err := inst.SendEvent(req.Context(), machines.EventType(connectionRegisterPayload.Status), connectionRegisterPayload)
 		if err != nil {
-			h.log.Error(err)
-			writeMeshkitError(w, err, http.StatusInternalServerError)
+			wrappedErr := ErrSendMachineEvent(err)
+			h.log.Error(wrappedErr)
+			writeMeshkitError(w, wrappedErr, http.StatusInternalServerError)
 			if event != nil {
 				_ = provider.PersistEvent(*event, token)
 				go h.config.EventBroadcaster.Publish(userUUID, event)
@@ -310,8 +312,14 @@ func (h *Handler) GetConnectionsByKind(w http.ResponseWriter, req *http.Request,
 	obj := "connections"
 
 	if err != nil {
-		h.log.Error(err)
-		writeMeshkitError(w, err, http.StatusInternalServerError)
+		// Provider implementations return a mix of bare errors and
+		// MeshKit-wrapped ones depending on whether the failure was
+		// inside DoRequest, in unmarshal, or in the local DAO. Wrap
+		// uniformly so the JSON envelope always carries MeshKit
+		// metadata.
+		wrappedErr := ErrGetConnections(err)
+		h.log.Error(wrappedErr)
+		writeMeshkitError(w, wrappedErr, http.StatusInternalServerError)
 		return
 	}
 

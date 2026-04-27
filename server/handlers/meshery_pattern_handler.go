@@ -443,12 +443,16 @@ func (h *Handler) VerifyAndConvertToDesign(
 		// sanitization and identification (which is a redundant step but it's a one off)
 		design, _, err := ConvertFileToDesign(fileToImport, h.registryManager, h.log)
 		if err != nil {
-			return err
+			// ConvertFileToDesign returns a mix of bare and MeshKit-wrapped
+			// errors depending on which import-pipeline stage failed. Wrap
+			// so the caller's JSON error envelope always carries MeshKit
+			// metadata, regardless of which stage surfaced the failure.
+			return ErrConvertToDesign(err)
 		}
 
 		bytPattern, err := encoding.Marshal(design)
 		if err != nil {
-			return err
+			return ErrEncodePattern(err)
 		}
 		mesheryPattern.PatternFile = string(bytPattern)
 
@@ -1190,13 +1194,14 @@ func (h *Handler) DownloadMesheryPatternHandler(
 		}
 		err = tarWriter.Compress(pattern.Name+".yml", ymlDesign)
 		if err != nil {
-			h.log.Error(err)
+			wrappedErr := ErrCompressArtifact(err)
+			h.log.Error(wrappedErr)
 			eb := *eventBuilder
-			event := eb.WithSeverity(events.Error).WithDescription(fmt.Sprintf("Unable to compress design \"%s\" and artifacthub pkg.", pattern.Name)).WithMetadata(map[string]interface{}{"error": err}).Build()
+			event := eb.WithSeverity(events.Error).WithDescription(fmt.Sprintf("Unable to compress design \"%s\" and artifacthub pkg.", pattern.Name)).WithMetadata(map[string]interface{}{"error": wrappedErr}).Build()
 			_ = provider.PersistEvent(*event, token)
 			go h.config.EventBroadcaster.Publish(userID, event)
 			tarWriter.Close()
-			writeMeshkitError(rw, err, http.StatusInternalServerError)
+			writeMeshkitError(rw, wrappedErr, http.StatusInternalServerError)
 			return
 		}
 
@@ -1950,7 +1955,10 @@ func (h *Handler) convertV1alpha2ToV1beta3(mesheryPattern *models.MesheryPattern
 
 	err = v1beta3PatternFile.ConvertFrom(&v1alpha1PatternFile)
 	if err != nil {
-		return nil, "", err
+		// Wrap so the JSON error envelope returned to the client carries
+		// MeshKit metadata (code, severity, suggested_remediation) instead
+		// of just the bare conversion message.
+		return nil, "", ErrConvertPattern(err)
 	}
 
 	v1beta3PatternFile.ID = *mesheryPattern.ID
@@ -1960,9 +1968,10 @@ func (h *Handler) convertV1alpha2ToV1beta3(mesheryPattern *models.MesheryPattern
 
 	err = mapModelRelatedData(h.registryManager, &v1beta3PatternFile)
 	if err != nil {
+		wrappedErr := ErrGetComponentDefinition(err)
 		eventBuilder.WithDescription("Design converted to v1beta3 format but failed to assign styles and metadata").
-			WithMetadata(map[string]interface{}{"error": ErrGetComponentDefinition(err), "id": *mesheryPattern.ID}).WithSeverity(events.Warning)
-		return nil, "", err
+			WithMetadata(map[string]interface{}{"error": wrappedErr, "id": *mesheryPattern.ID}).WithSeverity(events.Warning)
+		return nil, "", wrappedErr
 	}
 
 	v1beta3PatternByt, err := encoding.Marshal(v1beta3PatternFile)

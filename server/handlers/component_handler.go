@@ -793,10 +793,14 @@ func (h *Handler) RegisterMeshmodelComponents(rw http.ResponseWriter, r *http.Re
 	}
 	err = helpers.WriteLogsToFiles()
 	if err != nil {
-		h.log.Error(err)
-	}
-	if err != nil {
-		writeMeshkitError(rw, err, http.StatusBadRequest)
+		// WriteLogsToFiles is an internal flush of registry-attempt
+		// state to REGISTRY_LOG_FILE — the failure is server-side
+		// (filesystem permissions, disk full, marshal error), so
+		// surface a 500 with structured remediation instead of the
+		// previous raw 400.
+		wrappedErr := ErrWriteRegistryLogs(err)
+		h.log.Error(wrappedErr)
+		writeMeshkitError(rw, wrappedErr, http.StatusInternalServerError)
 		return
 	}
 	go h.config.MeshModelSummaryChannel.Publish()
@@ -874,13 +878,14 @@ func (h *Handler) UpdateEntityStatus(rw http.ResponseWriter, r *http.Request, _ 
 	eventBuilder := events.NewEvent().ActedUpon(userID).FromUser(userID).FromSystem(*h.SystemID).WithCategory(entityType).WithAction("update")
 	err = h.registryManager.UpdateEntityStatus(updateData.ID, updateData.Status, entityType)
 	if err != nil {
+		wrappedErr := ErrUpdateEntityStatus(err)
 		eventBuilder.WithSeverity(events.Error).WithDescription(fmt.Sprintf("Failed to update '%s' status to %s", updateData.DisplayName, updateData.Status)).WithMetadata(map[string]interface{}{
-			"error": err,
+			"error": wrappedErr,
 		})
 		_event := eventBuilder.Build()
 		_ = provider.PersistEvent(*_event, token)
 		go h.config.EventBroadcaster.Publish(userID, _event)
-		writeMeshkitError(rw, err, http.StatusInternalServerError)
+		writeMeshkitError(rw, wrappedErr, http.StatusInternalServerError)
 		return
 	}
 
