@@ -1,6 +1,6 @@
 ### END-TO-END TESTS
 
-- Testing started at: April 27th 2026, 10:23:08 pm
+- Testing started at: April 27th 2026, 11:04:44 pm
 
 **📦 Test Result Summary**
 
@@ -9,7 +9,7 @@
 - ⚠️ 0 flaked
 - ⏩ 11 skipped
 
-⌛ _Duration: 6 minutes and 2 seconds_
+⌛ _Duration: 6 minutes and 0 seconds_
 
 **Overall Result**: 👎 Some tests failed.
 
@@ -1426,29 +1426,6 @@ Call log:
 </details>
 
 <details>
-<summary>❌ Common UI elements (Meshery - chromium-meshery-provider)</summary>
-
-**File Location:** `/home/runner/work/meshery/meshery/ui/tests/e2e/performance.spec.js`
-
-**Error Message:**
-```
-[31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
-```
-
-**Code Snippet:**
-```
-[0m [90m 20 |[39m
- [90m 21 |[39m test[33m.[39mdescribe([32m'Performance Section Tests'[39m[33m,[39m () [33m=>[39m {
-[31m[1m>[22m[39m[90m 22 |[39m   test[33m.[39mbeforeEach([36masync[39m ({ page }) [33m=>[39m {
- [90m    |[39m        [31m[1m^[22m[39m
- [90m 23 |[39m     [36mconst[39m dashboardPage [33m=[39m [36mnew[39m [33mDashboardPage[39m(page)[33m;[39m
- [90m 24 |[39m     [36mawait[39m dashboardPage[33m.[39mnavigateToDashboard()[33m;[39m
- [90m 25 |[39m     [36mawait[39m dashboardPage[33m.[39mnavigateToPerformance()[33m;[39m[0m
-```
-
-</details>
-
-<details>
 <summary>❌ config patching correctness (Meshery - chromium-meshery-provider)</summary>
 
 **File Location:** `apiRequestContext.post: connect ECONNREFUSED :`
@@ -1699,6 +1676,29 @@ Call log:
  [90m 64 |[39m   }
  [90m 65 |[39m
  [90m 66 |[39m   [36masync[39m navigateToPerformance() {[0m
+```
+
+</details>
+
+<details>
+<summary>❌ Common UI elements (Meshery - chromium-meshery-provider)</summary>
+
+**File Location:** `/home/runner/work/meshery/meshery/ui/tests/e2e/performance.spec.js`
+
+**Error Message:**
+```
+[31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
+```
+
+**Code Snippet:**
+```
+[0m [90m 20 |[39m
+ [90m 21 |[39m test[33m.[39mdescribe([32m'Performance Section Tests'[39m[33m,[39m () [33m=>[39m {
+[31m[1m>[22m[39m[90m 22 |[39m   test[33m.[39mbeforeEach([36masync[39m ({ page }) [33m=>[39m {
+ [90m    |[39m        [31m[1m^[22m[39m
+ [90m 23 |[39m     [36mconst[39m dashboardPage [33m=[39m [36mnew[39m [33mDashboardPage[39m(page)[33m;[39m
+ [90m 24 |[39m     [36mawait[39m dashboardPage[33m.[39mnavigateToDashboard()[33m;[39m
+ [90m 25 |[39m     [36mawait[39m dashboardPage[33m.[39mnavigateToPerformance()[33m;[39m[0m
 ```
 
 </details>
@@ -2514,34 +2514,6 @@ Call log:
 </details>
 
 <details>
-<summary>❌ All settings tabs (Meshery - chromium-meshery-provider)</summary>
-
-**File Location:** `/home/runner/work/meshery/meshery/ui/tests/e2e/pages/DashboardPage.js`
-
-**Error Message:**
-```
-Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:9081/
-Call log:
-[2m  - navigating to "http://localhost:9081/", waiting until "load"[22m
-
-```
-
-**Code Snippet:**
-```
-   at pages/DashboardPage.js:63
-
-[0m [90m 61 |[39m
- [90m 62 |[39m   [36masync[39m navigateToDashboard() {
-[31m[1m>[22m[39m[90m 63 |[39m     [36mawait[39m [36mthis[39m[33m.[39mpage[33m.[39mgoto([33mLEFT_NAV[39m[33m.[39m[33mDASHBOARD[39m[33m.[39mpath)[33m;[39m
- [90m    |[39m                     [31m[1m^[22m[39m
- [90m 64 |[39m   }
- [90m 65 |[39m
- [90m 66 |[39m   [36masync[39m navigateToPerformance() {[0m
-```
-
-</details>
-
-<details>
 <summary>❌ alias resolution (None - chromium-local-provider)</summary>
 
 **File Location:** `apiRequestContext.post: connect ECONNREFUSED :`
@@ -2680,34 +2652,6 @@ Call log:
 </details>
 
 <details>
-<summary>❌ All settings tabs (None - chromium-local-provider)</summary>
-
-**File Location:** `/home/runner/work/meshery/meshery/ui/tests/e2e/pages/DashboardPage.js`
-
-**Error Message:**
-```
-Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:9081/
-Call log:
-[2m  - navigating to "http://localhost:9081/", waiting until "load"[22m
-
-```
-
-**Code Snippet:**
-```
-   at pages/DashboardPage.js:63
-
-[0m [90m 61 |[39m
- [90m 62 |[39m   [36masync[39m navigateToDashboard() {
-[31m[1m>[22m[39m[90m 63 |[39m     [36mawait[39m [36mthis[39m[33m.[39mpage[33m.[39mgoto([33mLEFT_NAV[39m[33m.[39m[33mDASHBOARD[39m[33m.[39mpath)[33m;[39m
- [90m    |[39m                     [31m[1m^[22m[39m
- [90m 64 |[39m   }
- [90m 65 |[39m
- [90m 66 |[39m   [36masync[39m navigateToPerformance() {[0m
-```
-
-</details>
-
-<details>
 <summary>❌ evaluation idempotency (None - chromium-local-provider)</summary>
 
 **File Location:** `apiRequestContext.post: connect ECONNREFUSED :`
@@ -2796,6 +2740,62 @@ Call log:
 ```
 
 
+
+</details>
+
+<details>
+<summary>❌ All settings tabs (Meshery - chromium-meshery-provider)</summary>
+
+**File Location:** `/home/runner/work/meshery/meshery/ui/tests/e2e/pages/DashboardPage.js`
+
+**Error Message:**
+```
+Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:9081/
+Call log:
+[2m  - navigating to "http://localhost:9081/", waiting until "load"[22m
+
+```
+
+**Code Snippet:**
+```
+   at pages/DashboardPage.js:63
+
+[0m [90m 61 |[39m
+ [90m 62 |[39m   [36masync[39m navigateToDashboard() {
+[31m[1m>[22m[39m[90m 63 |[39m     [36mawait[39m [36mthis[39m[33m.[39mpage[33m.[39mgoto([33mLEFT_NAV[39m[33m.[39m[33mDASHBOARD[39m[33m.[39mpath)[33m;[39m
+ [90m    |[39m                     [31m[1m^[22m[39m
+ [90m 64 |[39m   }
+ [90m 65 |[39m
+ [90m 66 |[39m   [36masync[39m navigateToPerformance() {[0m
+```
+
+</details>
+
+<details>
+<summary>❌ All settings tabs (None - chromium-local-provider)</summary>
+
+**File Location:** `/home/runner/work/meshery/meshery/ui/tests/e2e/pages/DashboardPage.js`
+
+**Error Message:**
+```
+Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:9081/
+Call log:
+[2m  - navigating to "http://localhost:9081/", waiting until "load"[22m
+
+```
+
+**Code Snippet:**
+```
+   at pages/DashboardPage.js:63
+
+[0m [90m 61 |[39m
+ [90m 62 |[39m   [36masync[39m navigateToDashboard() {
+[31m[1m>[22m[39m[90m 63 |[39m     [36mawait[39m [36mthis[39m[33m.[39mpage[33m.[39mgoto([33mLEFT_NAV[39m[33m.[39m[33mDASHBOARD[39m[33m.[39mpath)[33m;[39m
+ [90m    |[39m                     [31m[1m^[22m[39m
+ [90m 64 |[39m   }
+ [90m 65 |[39m
+ [90m 66 |[39m   [36masync[39m navigateToPerformance() {[0m
+```
 
 </details>
 
@@ -2976,39 +2976,6 @@ Call log:
 </details>
 
 <details>
-<summary>❌ Create a Model (Meshery - chromium-meshery-provider)</summary>
-
-**File Location:** `/home/runner/work/meshery/meshery/ui/tests/e2e/models.spec.ts`
-
-**Error Message:**
-```
-Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
-
-Locator: getByTestId('ModelImportedSection-ModelHeader-test-model-1777328657440')
-Expected: visible
-Timeout: 180000ms
-Error: element(s) not found
-
-Call log:
-[2m  - Expect "toBeVisible" with timeout 180000ms[22m
-[2m  - waiting for getByTestId('ModelImportedSection-ModelHeader-test-model-1777328657440')[22m
-
-```
-
-**Code Snippet:**
-```
-[0m [90m 85 |[39m     [36mawait[39m expect(
- [90m 86 |[39m       page[33m.[39mgetByTestId([32m`ModelImportedSection-ModelHeader-${model.MODEL_NAME}`[39m)[33m,[39m
-[31m[1m>[22m[39m[90m 87 |[39m     )[33m.[39mtoBeVisible({ timeout[33m:[39m [35m180[39m_000 })[33m;[39m
- [90m    |[39m       [31m[1m^[22m[39m
- [90m 88 |[39m     [36mawait[39m expect(page[33m.[39mgetByTestId([32m'ModelImportMessages-Wrapper'[39m))[33m.[39mtoBeVisible()[33m;[39m
- [90m 89 |[39m
- [90m 90 |[39m     [36mawait[39m page[33m.[39mgetByTestId([32m'UrlStepper-Button-Finish'[39m)[33m.[39mclick()[33m;[39m[0m
-```
-
-</details>
-
-<details>
 <summary>❌ Action buttons on adapters tab (Meshery - chromium-meshery-provider)</summary>
 
 **File Location:** `/home/runner/work/meshery/meshery/ui/tests/e2e/pages/DashboardPage.js`
@@ -3060,6 +3027,39 @@ Call log:
  [90m 64 |[39m   }
  [90m 65 |[39m
  [90m 66 |[39m   [36masync[39m navigateToPerformance() {[0m
+```
+
+</details>
+
+<details>
+<summary>❌ Create a Model (Meshery - chromium-meshery-provider)</summary>
+
+**File Location:** `/home/runner/work/meshery/meshery/ui/tests/e2e/models.spec.ts`
+
+**Error Message:**
+```
+Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+Locator: getByTestId('ModelImportedSection-ModelHeader-test-model-1777331151999')
+Expected: visible
+Timeout: 180000ms
+Error: element(s) not found
+
+Call log:
+[2m  - Expect "toBeVisible" with timeout 180000ms[22m
+[2m  - waiting for getByTestId('ModelImportedSection-ModelHeader-test-model-1777331151999')[22m
+
+```
+
+**Code Snippet:**
+```
+[0m [90m 85 |[39m     [36mawait[39m expect(
+ [90m 86 |[39m       page[33m.[39mgetByTestId([32m`ModelImportedSection-ModelHeader-${model.MODEL_NAME}`[39m)[33m,[39m
+[31m[1m>[22m[39m[90m 87 |[39m     )[33m.[39mtoBeVisible({ timeout[33m:[39m [35m180[39m_000 })[33m;[39m
+ [90m    |[39m       [31m[1m^[22m[39m
+ [90m 88 |[39m     [36mawait[39m expect(page[33m.[39mgetByTestId([32m'ModelImportMessages-Wrapper'[39m))[33m.[39mtoBeVisible()[33m;[39m
+ [90m 89 |[39m
+ [90m 90 |[39m     [36mawait[39m page[33m.[39mgetByTestId([32m'UrlStepper-Button-Finish'[39m)[33m.[39mclick()[33m;[39m[0m
 ```
 
 </details>
