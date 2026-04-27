@@ -217,7 +217,7 @@ To filter and view only CLI-related test cases using the Sheet Views feature:
 
 ![Meshery Test Plan Screenshot](/project/contributing/images/meshery-test-plan-v0.8.0-ui.png)
 
-## Developement
+## Development
 
 **End-to-End Tests:**
 
