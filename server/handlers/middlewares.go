@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/gofrs/uuid"
 	"github.com/meshery/meshery/server/machines"
@@ -17,6 +18,20 @@ import (
 	"github.com/meshery/meshsync/pkg/model"
 	"github.com/spf13/viper"
 )
+
+// isTransientProviderError returns true if the error indicates the remote
+// provider is temporarily unreachable (network error, timeout, 5xx) as
+// opposed to a genuine authentication failure (missing token, invalid token).
+// This distinction prevents destroying a user's valid session when the
+// remote provider has a transient outage.
+func isTransientProviderError(err error) bool {
+	if err == nil {
+		return false
+	}
+	errMsg := err.Error()
+	return strings.Contains(errMsg, "Could not reach remote provider") ||
+		strings.Contains(errMsg, models.ErrUnreachableRemoteProviderCode)
+}
 
 const providerQParamName = "provider"
 
@@ -111,8 +126,8 @@ func (h *Handler) AuthMiddleware(next http.Handler, auth models.AuthenticationMe
 			// }
 			// logrus.Debugf("provider %s", provider)
 			isValid, err := h.validateAuth(provider, req)
-			// logrus.Debugf("validate auth: %t", isValid)
 			if !isValid {
+				h.log.Info(fmt.Sprintf("[AUTH_FLOW] step=AuthMiddleware action=auth_failed path=%s error=%v", req.URL.Path, err))
 				if !errors.Is(err, models.ErrEmptySession) && provider.GetProviderType() == models.RemoteProviderType {
 					provider.HandleUnAuthenticated(w, req)
 					return
@@ -145,7 +160,7 @@ func (h *Handler) KubernetesMiddleware(next func(http.ResponseWriter, *http.Requ
 		ctx := req.Context()
 		ctx, err := KubernetesMiddleware(ctx, h, provider, user, req.URL.Query()["contexts"])
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			writeMeshkitError(w, err, http.StatusInternalServerError)
 			return
 		}
 
@@ -178,17 +193,33 @@ func (h *Handler) SessionInjectorMiddleware(next func(http.ResponseWriter, *http
 		// }
 
 		user, err := provider.GetUserDetails(req)
-		// if user details are not available,
-		// then logout current user session and redirect to login page
 		if err != nil {
+			h.log.Error(ErrGetUserDetails(err))
+			// INTENTIONAL log/wire divergence. We log ErrGetUserDetails so the
+			// operational trail captures *what* failed (the get-user call), but
+			// we surface ErrTransientProvider on the wire so the client can
+			// distinguish between a transient failure (e.g., Cloud unreachable)
+			// and a genuine auth failure. Conflating the two would either flood
+			// logs with misleading transient classifications or hide the
+			// auth-vs-network distinction from clients. Don't "fix" this to
+			// match without reading PR #18919.
+			//
+			// Behavioral consequence: on a transient provider error we must NOT
+			// destroy the user's session by logging them out — that would cause
+			// a redirect loop when Cloud recovers. A missing/invalid token
+			// cookie still falls through to the genuine auth-failure path below.
+			if isTransientProviderError(err) {
+				writeMeshkitError(w, ErrTransientProvider(err), http.StatusServiceUnavailable)
+				return
+			}
+			// Genuine auth failure — logout and redirect to login
 			err1 := provider.Logout(w, req)
 			if err1 != nil {
 				h.log.Error(models.ErrLogout(err1))
 				provider.HandleUnAuthenticated(w, req)
 				return
 			}
-			h.log.Error(ErrGetUserDetails(err))
-			http.Error(w, ErrGetUserDetails(err).Error(), http.StatusUnauthorized)
+			writeMeshkitError(w, ErrGetUserDetails(err), http.StatusUnauthorized)
 			return
 		}
 		prefObj, err := provider.ReadFromPersister(user.UserId)
@@ -295,7 +326,7 @@ func KubernetesMiddleware(ctx context.Context, h *Handler, provider models.Provi
 		go func(inst *machines.StateMachine) {
 			event, err := inst.SendEvent(ctx, machines.Discovery, nil)
 			if err != nil {
-				_ = provider.PersistEvent(*event, nil)
+				_ = provider.PersistEvent(*event, token)
 				go h.config.EventBroadcaster.Publish(userUUID, event)
 			}
 		}(inst)
@@ -316,6 +347,7 @@ type dataHandlerToClusterID struct {
 }
 
 func K8sFSMMiddleware(ctx context.Context, h *Handler, provider models.Provider, user *models.User) {
+	token, _ := ctx.Value(models.TokenCtxKey).(string)
 	smInstanceTracker := h.ConnectionToStateMachineInstanceTracker
 	connectedK8sContexts := ctx.Value(models.AllKubeClusterKey).([]*models.K8sContext)
 	userUUID := user.ID
@@ -353,7 +385,7 @@ func K8sFSMMiddleware(ctx context.Context, h *Handler, provider models.Provider,
 		go func(inst *machines.StateMachine) {
 			event, err := inst.SendEvent(ctx, machines.Discovery, nil)
 			if err != nil {
-				_ = provider.PersistEvent(*event, nil)
+				_ = provider.PersistEvent(*event, token)
 				go h.config.EventBroadcaster.Publish(userUUID, event)
 			}
 		}(inst)
@@ -364,6 +396,9 @@ func K8sFSMMiddleware(ctx context.Context, h *Handler, provider models.Provider,
 		}
 		mdh := kubernesMachineCtx.MesheryCtrlsHelper.GetMeshSyncDataHandlersForEachContext()
 		if mdh != nil {
+			if k8sContext.KubernetesServerID == nil {
+				continue
+			}
 			dataHandlers = append(dataHandlers, &dataHandlerToClusterID{
 				mdh:       *mdh,
 				clusterID: k8sContext.KubernetesServerID.String(),

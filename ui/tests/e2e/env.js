@@ -1,5 +1,5 @@
 const MESHERY_SERVER_URL = process.env.MESHERY_SERVER_URL || 'http://localhost:9081';
-const REMOTE_PROVIDER_URL = process.env.REMOTE_PROVIDER_URL || 'https://cloud.layer5.io';
+const REMOTE_PROVIDER_URL = process.env.REMOTE_PROVIDER_URL || 'https://cloud.meshery.io';
 
 const USER_EMAIL = process.env.REMOTE_PROVIDER_USER_EMAIL;
 const USER_PASSWORD = process.env.REMOTE_PROVIDER_USER_PASSWORD;
@@ -15,7 +15,7 @@ if (process.env.CI) {
   if (!USER_EMAIL && !USER_PASSWORD) {
     console.warn('Using default email and password on auth');
   } else if (!USER_EMAIL || !USER_PASSWORD) {
-console.error("You're either email or password is empty");
+    console.error('Either your email or password is empty');
     process.exit(1);
   }
 } else {

@@ -8,13 +8,6 @@ import (
 	models "github.com/meshery/meshery/server/models"
 )
 
-// swagger:route GET /api/provider ProvidersAPI idChoiceProvider
-// Handle GET request for the choice of provider
-//
-// Update the choice of provider in system
-// responses:
-// 	200:
-
 // ProviderHandler - handles the choice of provider
 func (h *Handler) ProviderHandler(w http.ResponseWriter, r *http.Request) {
 	provider := r.URL.Query().Get("provider")
@@ -33,13 +26,6 @@ func (h *Handler) ProviderHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route GET /api/providers ProvidersAPI idGetProvidersList
-// Handle GET request for list of providers
-//
-// Returns the available list of providers
-// responses:
-// 	200: listProvidersRespWrapper
-
 // ProvidersHandler returns a list of providers
 func (h *Handler) ProvidersHandler(w http.ResponseWriter, _ *http.Request) {
 	// if r.Method != http.MethodGet {
@@ -55,18 +41,11 @@ func (h *Handler) ProvidersHandler(w http.ResponseWriter, _ *http.Request) {
 	if err != nil {
 		obj := "provider"
 		h.log.Error(models.ErrMarshal(err, obj))
-		http.Error(w, models.ErrMarshal(err, obj).Error(), http.StatusInternalServerError)
+		writeMeshkitError(w, models.ErrMarshal(err, obj), http.StatusInternalServerError)
 		return
 	}
 	_, _ = w.Write(bd)
 }
-
-// swagger:route GET /provider ProvidersAPI idProvider
-// Handle GET request to provider UI
-//
-// Servers providers UI
-// responses:
-// 	200:
 
 // ProviderUIHandler - serves providers UI
 func (h *Handler) ProviderUIHandler(w http.ResponseWriter, r *http.Request) {
@@ -88,13 +67,6 @@ func (h *Handler) ProviderUIHandler(w http.ResponseWriter, r *http.Request) {
 	h.ServeUI(w, r, "/provider", "../../provider-ui/out/")
 }
 
-// swagger:route GET /api/provider/capabilities ProvidersAPI idGetProviderCapabilities
-// Handle GET requests for Provider
-//
-// Returns the capabilities.json for the provider
-// responses:
-// 	200:
-
 // ProviderCapabilityHandler returns the capabilities.json for the provider
 func (h *Handler) ProviderCapabilityHandler(
 	w http.ResponseWriter,
@@ -115,17 +87,10 @@ func (h *Handler) ProviderCapabilityHandler(
 	err = json.NewEncoder(w).Encode(providerCapabilities)
 	if err != nil {
 		h.log.Error(models.ErrMarshal(err, "provider capabilities"))
-		http.Error(w, models.ErrMarshal(err, "provider capabilities").Error(), http.StatusInternalServerError)
+		writeMeshkitError(w, models.ErrMarshal(err, "provider capabilities"), http.StatusInternalServerError)
 		return
 	}
 }
-
-// swagger:route GET /api/provider/extension ProvidersAPI idReactComponents
-// Handle GET request for React Components
-//
-// handles the requests to serve react components from the provider package
-// responses:
-// 	200:
 
 // ProviderComponentsHandler handlers the requests to serve react
 // components from the provider package
@@ -147,11 +112,10 @@ func (h *Handler) ProviderComponentsHandler(
 		if err != nil {
 			// failed to load extensions from package
 			h.log.Error(ErrFailToLoadExtensions(err))
-			http.Error(w, ErrFailToLoadExtensions(err).Error(), http.StatusInternalServerError)
+			writeMeshkitError(w, ErrFailToLoadExtensions(err), http.StatusInternalServerError)
 			return
 		}
-		w.Header().Set("content-type", "application/json")
-		_, _ = w.Write([]byte("{}"))
+		writeJSONEmptyObject(w, http.StatusOK)
 	} else {
 		ServeReactComponentFromPackage(w, r, uiReqBasePath, provider)
 	}
